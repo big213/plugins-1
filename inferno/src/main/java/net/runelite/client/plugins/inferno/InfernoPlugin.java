@@ -178,6 +178,7 @@ public class InfernoPlugin extends Plugin
 	@Override
 	protected void shutDown()
 	{
+		jadOverlay.shutDown();
 		overlayManager.remove(infernoOverlay);
 		overlayManager.remove(waveOverlay);
 		overlayManager.remove(jadOverlay);
@@ -186,7 +187,6 @@ public class InfernoPlugin extends Plugin
 		currentWaveNumber = -1;
 
 		showNpcDeaths();
-		shutDown();
 	}
 
 	@Subscribe
