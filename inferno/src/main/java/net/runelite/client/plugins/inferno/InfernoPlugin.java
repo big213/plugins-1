@@ -186,6 +186,7 @@ public class InfernoPlugin extends Plugin
 		currentWaveNumber = -1;
 
 		showNpcDeaths();
+		shutDown();
 	}
 
 	@Subscribe

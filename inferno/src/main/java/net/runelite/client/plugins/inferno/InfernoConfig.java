@@ -32,6 +32,8 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
+import net.runelite.client.config.Range;
+import net.runelite.client.config.Units;
 import net.runelite.client.plugins.inferno.displaymodes.InfernoNamingDisplayMode;
 import net.runelite.client.plugins.inferno.displaymodes.InfernoPrayerDisplayMode;
 import net.runelite.client.plugins.inferno.displaymodes.InfernoSafespotDisplayMode;
@@ -255,6 +257,68 @@ public interface InfernoConfig extends Config
 	default boolean alwaysShowPrayerHelper()
 	{
 		return false;
+	}
+
+	@ConfigItem(
+		keyName = "playPrayerSound",
+		name = "Play Prayer Sound",
+		description = "Plays an audio file if you need to change pray",
+		position = 7,
+		section = "features",
+		titleSection = "PrayerSection"
+	)
+	default boolean playPrayerSound()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "meleePrayerFilePath",
+		name = "Melee Prayer .wav file path",
+		description = "The path to the file to be used for \"melee prayer\" sounds (short .wav only)",
+		titleSection = "PrayerSection"
+	)
+	default String meleePrayerFilePath()
+	{
+		return "";
+	}
+
+	@ConfigItem(
+		keyName = "magePrayerFilePath",
+		name = "Mage Prayer .wav file path",
+		description = "The path to the file to be used for \"mage prayer\" sounds (short .wav only)",
+		titleSection = "PrayerSection"
+	)
+	default String magePrayerFilePath()
+	{
+		return "";
+	}
+
+	@ConfigItem(
+		keyName = "rangePrayerFilePath",
+		name = "Range Prayer .wav file path",
+		description = "The path to the file to be used for \"range prayer\" sounds (short .wav only)",
+		titleSection = "PrayerSection"
+	)
+	default String rangePrayerFilePath()
+	{
+		return "";
+	}
+
+	@Range(
+		min = 0,
+		max = 100
+	)
+	@ConfigItem(
+		keyName = "volume",
+		name = "Volume modification",
+		description = "Configures tick/tock volume; only effects custom sounds.",
+		titleSection = "PrayerSection"
+	)
+	@Units(Units.PERCENT)
+	default int volume()
+	{
+		return 35;
 	}
 
 	@ConfigItem(
