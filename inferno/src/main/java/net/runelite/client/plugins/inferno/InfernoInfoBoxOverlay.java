@@ -28,9 +28,18 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import net.runelite.api.Client;
+import net.runelite.api.Prayer;
 import net.runelite.api.SpriteID;
 import net.runelite.client.game.SpriteManager;
 import net.runelite.client.plugins.inferno.displaymodes.InfernoPrayerDisplayMode;
@@ -55,6 +64,12 @@ public class InfernoInfoBoxOverlay extends Overlay
 	private BufferedImage prayRangedSprite;
 	private BufferedImage prayMagicSprite;
 
+	private Clip meleePrayerClip;
+	private Clip magePrayerClip;
+	private Clip rangePrayerClip;
+
+	private long lastSoundPlayedMs = -1;
+
 	@Inject
 	private InfernoInfoBoxOverlay(final Client client, final InfernoPlugin plugin, final InfernoConfig config, final SpriteManager spriteManager)
 	{
@@ -65,6 +80,26 @@ public class InfernoInfoBoxOverlay extends Overlay
 		determineLayer();
 		setPosition(OverlayPosition.BOTTOM_RIGHT);
 		setPriority(OverlayPriority.HIGH);
+
+		meleePrayerClip = GetAudioClip(config.meleePrayerFilePath());
+		magePrayerClip = GetAudioClip(config.magePrayerFilePath());
+		rangePrayerClip = GetAudioClip(config.rangePrayerFilePath());
+	}
+
+	protected void shutDown()
+	{
+		if (meleePrayerClip != null)
+		{
+			meleePrayerClip.close();
+		}
+		if (magePrayerClip != null)
+		{
+			magePrayerClip.close();
+		}
+		if (rangePrayerClip != null)
+		{
+			rangePrayerClip.close();
+		}
 	}
 
 	@Override
@@ -83,9 +118,25 @@ public class InfernoInfoBoxOverlay extends Overlay
 			final BufferedImage prayerImage = getPrayerImage(plugin.getClosestAttack());
 
 			imagePanelComponent.getChildren().add(new ImageComponent(prayerImage));
-			imagePanelComponent.setBackgroundColor(client.isPrayerActive(plugin.getClosestAttack().getPrayer())
-				? ComponentConstants.STANDARD_BACKGROUND_COLOR
-				: NOT_ACTIVATED_BACKGROUND_COLOR);
+
+			//if the next prayer is different from what the user is currently praying
+			if (client.isPrayerActive(plugin.getClosestAttack().getPrayer()))
+			{
+				//set the background color
+				imagePanelComponent.setBackgroundColor(ComponentConstants.STANDARD_BACKGROUND_COLOR);
+			}
+			else
+			{
+				imagePanelComponent.setBackgroundColor(NOT_ACTIVATED_BACKGROUND_COLOR);
+
+				//play the sound if it has been more than 1500 ms since a sound was last played
+				if (config.playPrayerSound() && (System.currentTimeMillis() - this.lastSoundPlayedMs) > 1500)
+				{
+					this.playPrayerSound(plugin.getClosestAttack().getPrayer());
+					lastSoundPlayedMs = System.currentTimeMillis();
+				}
+
+			}
 		}
 		else
 		{
@@ -128,6 +179,60 @@ public class InfernoInfoBoxOverlay extends Overlay
 		if (config.mirrorMode())
 		{
 			setLayer(OverlayLayer.AFTER_MIRROR);
+		}
+	}
+
+	private void playPrayerSound(Prayer prayer)
+	{
+		switch (prayer)
+		{
+			case PROTECT_FROM_MISSILES: this.playClip(this.rangePrayerClip);
+				break;
+			case PROTECT_FROM_MELEE: this.playClip(this.meleePrayerClip);
+				break;
+			case PROTECT_FROM_MAGIC: this.playClip(this.magePrayerClip);
+				break;
+		}
+	}
+
+	private void playClip(Clip clip)
+	{
+		if (clip == null)
+		{
+			return;
+		}
+
+		if (clip.isRunning())
+		{
+			clip.stop();
+		}
+
+		clip.setFramePosition(0);
+		clip.start();
+	}
+
+	private Clip GetAudioClip(String path)
+	{
+		File audioFile = new File(path);
+		if (!audioFile.exists())
+		{
+			return null;
+		}
+
+		try (AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile))
+		{
+			Clip audioClip = AudioSystem.getClip();
+			audioClip.open(audioStream);
+			FloatControl gainControl = (FloatControl) audioClip.getControl(FloatControl.Type.MASTER_GAIN);
+			float gainValue = (((float) config.volume()) * 40f / 100f) - 35f;
+			gainControl.setValue(gainValue);
+
+			return audioClip;
+		}
+		catch (IOException | LineUnavailableException | UnsupportedAudioFileException e)
+		{
+			//log.warn("Error opening audiostream from " + audioFile, e);
+			return null;
 		}
 	}
 }
