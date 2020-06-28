@@ -505,7 +505,7 @@ public class InfernoPlugin extends Plugin
 	{
 		for (InfernoNPC infernoNPC : infernoNpcs)
 		{
-			infernoNPC.gameTick(client, lastLocation, ticksSinceFinalPhase);
+			infernoNPC.gameTick(client, lastLocation, finalPhase, ticksSinceFinalPhase);
 
 			if (infernoNPC.getType() == InfernoNPC.Type.ZUK && zukShieldCornerTicks == -1)
 			{

@@ -173,7 +173,7 @@ class InfernoNPC
 		return new WorldArea(lastPlayerLocation, 1, 1).hasLineOfSightTo(client, this.getNpc().getWorldArea());
 	}
 
-	void gameTick(Client client, WorldPoint lastPlayerLocation, int ticksSinceFinalPhase)
+	void gameTick(Client client, WorldPoint lastPlayerLocation, boolean finalPhase, int ticksSinceFinalPhase)
 	{
 		safeSpotCache.clear();
 
