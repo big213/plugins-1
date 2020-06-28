@@ -199,7 +199,7 @@ class InfernoNPC
 			{
 				case ZUK:
 					//if final phase started on this exact tick, skip setting the ticksTillNextAttack
-					if (this.getNpc().getAnimation() == AnimationID.TZKAL_ZUK && !finalPhaseTick)
+					if (this.getNpc().getAnimation() == AnimationID.TZKAL_ZUK)
 					{
 						if (finalPhase)
 						{
