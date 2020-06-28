@@ -173,7 +173,11 @@ class InfernoNPC
 		return new WorldArea(lastPlayerLocation, 1, 1).hasLineOfSightTo(client, this.getNpc().getWorldArea());
 	}
 
+<<<<<<< HEAD
 	void gameTick(Client client, WorldPoint lastPlayerLocation, boolean finalPhase, boolean finalPhaseTick)
+=======
+	void gameTick(Client client, WorldPoint lastPlayerLocation, boolean finalPhase, int ticksSinceFinalPhase)
+>>>>>>> inferno-update-5
 	{
 		safeSpotCache.clear();
 
@@ -203,7 +207,11 @@ class InfernoNPC
 					{
 						if (finalPhase)
 						{
-							this.updateNextAttack(this.getType().getDefaultAttack(), 7);
+							//if on final phase, wait until at least 3 ticks since the final phase started to set the ticksTilNextAttack
+							if (ticksSinceFinalPhase > 3)
+							{
+								this.updateNextAttack(this.getType().getDefaultAttack(), 7);
+							}
 						}
 						else
 						{
