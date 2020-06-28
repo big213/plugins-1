@@ -132,8 +132,6 @@ public class InfernoPlugin extends Plugin
 	private boolean finalPhaseTick = false;
 	private int ticksSinceFinalPhase = 0;
 	@Getter(AccessLevel.PACKAGE)
-	private boolean finalPhaseTick = false;
-	@Getter(AccessLevel.PACKAGE)
 	private NPC zukShield = null;
 	private NPC zuk = null;
 	private WorldPoint zukShieldLastPosition = null;
